@@ -13,7 +13,7 @@ namespace ExportDataApplication
     {
         public void InsertData()
         {
-            string fileName = @"D:\DataBase Script\ScreenValuesFields14-09-2018.xlsx";
+            string fileName = @"C:\Users\Shweta Mahajan\Downloads\ScreenValuesFields14-09-2018.xlsx";
             string ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + fileName + ";Extended Properties=\"Excel 12.0 Xml;HDR=YES;IMEX=1\";";         
             OleDbConnection oconn = new OleDbConnection(ConnectionString);                                                                                                                                                       // connectionstring to connect to the Excel Sheet
             try
@@ -61,17 +61,31 @@ namespace ExportDataApplication
         public void insertdataintosql(string Id, string FieldName,
              string ScreenValueTypeId, string PMTypeId)
         {//inserting data into the Sql Server
-            SqlConnection conn = new SqlConnection("Data Source=.\\sqlexpress;AttachDbFileName =| DataDirectory | exceltosql.mdf; Trusted_Connection = yes");
+            
+            SqlConnection conn = new SqlConnection("Server=.\\sqlexpress;Database=TRIATTech; Trusted_Connection = yes");
             SqlCommand cmd = new SqlCommand();
             cmd.Connection = conn;
-            cmd.CommandText = "insert into emp(FieldName,ScreenTypeValueId,PMTypeId,Unit,ValueType,IsDeleted,DateCreated,Default,Position)values(@fname, @lname, @mobnum, @city, @state, @zip)";
+            cmd.CommandText = "select Id from ScreenValueTypes where ValueScreenType=" + ScreenValueTypeId + "";
+            cmd.CommandType = CommandType.Text;
+            conn.Open();
+            var ScreenValueId= cmd.ExecuteScalar();
+
+            //cmd.CommandText = "select Id from ScreenValueTypes where ValueScreenType=" + ScreenValueTypeId + ""; select * from ScreenValueTypes  join PMTypes on 
+
+
+
+
+
+            cmd.CommandText = "insert into ScreenValueFields(FieldName,ScreenTypeValueId,PMTypeId,Unit,ValueType,IsDeleted,DateCreated,Position)values(@FieldName, @ScreenValueTypeId, @PMTypeId, @Unit, @ValueType, @IsDeleted,@DateCreated,@Position)";
             cmd.Parameters.Add("@FieldName", SqlDbType.NVarChar).Value = FieldName;
             cmd.Parameters.Add("@ScreenValueTypeId", SqlDbType.Int).Value = Convert.ToInt32(ScreenValueTypeId);
             cmd.Parameters.Add("@PMTypeId", SqlDbType.Int).Value = Convert.ToInt32(PMTypeId);
             cmd.Parameters.Add("@Unit", SqlDbType.NVarChar).Value = "Anonymous";
             cmd.Parameters.Add("@ValueType", SqlDbType.NVarChar).Value = "Single";
-            cmd.Parameters.Add("@IsDeleted", SqlDbType.Bit).Value =false;
+            cmd.Parameters.Add("@IsDeleted", SqlDbType.Bit).Value =0;
             cmd.Parameters.Add("@DateCreated", SqlDbType.DateTime).Value = DateTime.Now;
+            //cmd.Parameters.Add("@Default", SqlDbType.Bit).Value = 0;
+            cmd.Parameters.Add("@Position", SqlDbType.Bit).Value = 0;
             cmd.CommandType = CommandType.Text;
             conn.Open();
             cmd.ExecuteNonQuery();
